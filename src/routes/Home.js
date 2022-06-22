@@ -1,14 +1,8 @@
 import React, { useState } from "react";
 
-import {
-  Grid,
-  Box,
-  TextField,
-  InputAdornment,
-  FormControl,
-} from "@mui/material";
+import { Grid, Box, TextField, InputAdornment } from "@mui/material";
 import { Search } from "@mui/icons-material";
-import FuzzySearch from "fuzzy-search";
+import Fuse from "fuse.js";
 
 import EmployeeCard from "../components/EmployeeCard";
 import mockData from "../mock.json";
@@ -16,18 +10,31 @@ import mockData from "../mock.json";
 export default function Home() {
   const [data, setData] = useState(mockData.results);
   const [searchStr, setSearchStr] = useState("");
+
+  const searcher = new Fuse(mockData.results, {
+    includeScore: true,
+    threshold: 0.5,
+    keys: [
+      "location.city",
+      "location.country",
+      "location.postcode",
+      "location.state",
+      "location.street.name",
+      "gender",
+      "dob.date",
+    ],
+  });
+
   const searchHandle = (e) => {
-    console.log(searchStr);
-    // if (searchStr.length) {
-    //   const searcher = new FuzzySearch(mockData.results, [
-    //     "location",
-    //     "gender",
-    //     "dob.date",
-    //   ]);
-    //   setData(searcher.search(searchStr));
-    // } else {
-    //   setData(mockData.results);
-    // }
+    const searchStr = e.target.value;
+    setSearchStr(searchStr);
+
+    const result = searcher.search(searchStr);
+    let newData =
+      searchStr.length && result.length
+        ? result.map((_) => _.item)
+        : mockData.results;
+    setData(newData);
   };
 
   return (
