@@ -3,9 +3,9 @@ import ReactDOM from "react-dom/client";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// import { Provider } from "react-redux";
-// import { createStore } from "redux";
-// import rootReducer from "./store/reducers";
+import { Provider } from "react-redux";
+import { store } from "./app/store";
+import { getEmployees } from "./features/employees/employeesSlice";
 
 import reportWebVitals from "./reportWebVitals";
 
@@ -13,21 +13,24 @@ import "./index.css";
 import Wrapper from "./components/layout/Wrapper";
 import Home from "./routes/Home";
 import New from "./routes/New";
+import EmployeeView from "./routes/Employee";
 
-// const store = createStore(rootReducer);
+store.dispatch(getEmployees(10));
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    {/* <Provider store={store}> */}
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Wrapper />}>
-          <Route index element={<Home />} />
-          <Route path="new" element={<New />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-    {/* </Provider> */}
+    <Provider store={store}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Wrapper />}>
+            <Route index element={<Home />} />
+            <Route path="new" element={<New />} />
+            <Route path="employee/:uuid" element={<EmployeeView />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </Provider>
   </React.StrictMode>
 );
 

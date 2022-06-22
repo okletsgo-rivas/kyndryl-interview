@@ -1,4 +1,10 @@
 import { useState, createRef } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { v4 as uuidv4 } from "uuid";
+
+import { useDispatch } from "react-redux";
+import { add } from "../features/employees/employeesSlice";
 
 import {
   TextField,
@@ -16,7 +22,6 @@ import {
 import { Box } from "@mui/system";
 
 import { OpenStreetMapProvider } from "leaflet-geosearch";
-import { useNavigate } from "react-router-dom";
 
 export default function New() {
   const [profileImage, setProfileImage] = useState(null);
@@ -28,6 +33,8 @@ export default function New() {
   const [mapResults, setMapResults] = useState([]);
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+
+  const dispatch = useDispatch();
 
   const fileInput = createRef(null);
   const reader = new FileReader();
@@ -82,16 +89,25 @@ export default function New() {
         state,
         country,
         postcode,
+        timezone: {
+          offset: "LOOKUP TODO",
+          description: "World",
+        },
         coordinates: {
           latitude: addressValue.x,
           longitude: addressValue.y,
         },
       },
-      picture: profileImage,
+      login: {
+        uuid: uuidv4(),
+      },
+      picture: { medium: profileImage },
       phone,
       email,
     };
-    console.log(payload);
+
+    dispatch(add(payload));
+    navigate("/");
   }
 
   return (

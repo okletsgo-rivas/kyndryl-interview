@@ -5,13 +5,14 @@ import { Search } from "@mui/icons-material";
 import Fuse from "fuse.js";
 
 import EmployeeCard from "../components/EmployeeCard";
-import mockData from "../mock.json";
+
+import { useSelector } from "react-redux";
 
 export default function Home() {
-  const [data, setData] = useState(mockData.results);
+  const employees = useSelector((state) => state.employees.value);
   const [searchStr, setSearchStr] = useState("");
 
-  const searcher = new Fuse(mockData.results, {
+  const searcher = new Fuse(employees, {
     includeScore: true,
     threshold: 0.5,
     keys: [
@@ -25,16 +26,11 @@ export default function Home() {
     ],
   });
 
-  const searchHandle = (e) => {
-    const searchStr = e.target.value;
-    setSearchStr(searchStr);
-
+  const filterEmployees = () => {
     const result = searcher.search(searchStr);
-    let newData =
-      searchStr.length && result.length
-        ? result.map((_) => _.item)
-        : mockData.results;
-    setData(newData);
+    return searchStr.length && result.length
+      ? result.map((_) => _.item)
+      : employees;
   };
 
   return (
@@ -55,10 +51,10 @@ export default function Home() {
               ),
             }}
             value={searchStr}
-            onChange={searchHandle}
+            onChange={(e) => setSearchStr(e.target.value)}
           />
         </Grid>
-        {data.map((userData) => (
+        {filterEmployees().map((userData) => (
           <Grid item xs={12} md={6} key={userData.login.uuid}>
             <EmployeeCard userData={userData} />
           </Grid>

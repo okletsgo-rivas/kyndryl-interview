@@ -15,21 +15,20 @@ import {
   EmailOutlined,
 } from "@mui/icons-material";
 
-import { useDispatch } from "react-redux";
 import { remove } from "../features/employees/employeesSlice";
 
-import { useNavigate } from "react-router-dom";
-
-import "./EmployeeCard.css";
-
 import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-export default function EmployeeCard(props) {
-  const { userData } = props;
-  const [modalOpen, setModalOpen] = useState(false);
-
+export default function Employee() {
+  const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const employees = useSelector((state) => state.employees.value);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const userData = employees.find((_) => _.login.uuid === params.uuid);
 
   const genderIcon =
     userData.gender === "male" ? (
@@ -37,9 +36,13 @@ export default function EmployeeCard(props) {
     ) : (
       <Female className="EmployeeCard-icon" />
     );
+
   return (
     <>
       <Card raised>
+        <Button sx={{ marginTop: 2 }} onClick={() => navigate("/")}>
+          &#9204; Back
+        </Button>
         <CardHeader
           avatar={
             <Avatar alt="profile portrait" src={userData.picture.medium} />
@@ -63,12 +66,7 @@ export default function EmployeeCard(props) {
           </div>
         </CardContent>
         <CardActions>
-          <Button
-            size="small"
-            onClick={() => navigate(`employee/${userData.login.uuid}`)}
-          >
-            View
-          </Button>
+          {/* <Button size="small">Edit</Button> */}
           <Button size="small" onClick={() => setModalOpen(true)}>
             Delete
           </Button>
@@ -84,7 +82,12 @@ export default function EmployeeCard(props) {
             <h3>Are you sure you want to delete the user?</h3>
           </CardContent>
           <CardActions>
-            <Button onClick={() => dispatch(remove(userData.login.uuid))}>
+            <Button
+              onClick={() => {
+                dispatch(remove(userData.login.uuid));
+                navigate("/");
+              }}
+            >
               Ok
             </Button>
             <Button onClick={() => setModalOpen(false)}>Cancel</Button>
